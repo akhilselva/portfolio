@@ -1,0 +1,404 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Fredoka+One&display=swap');
+
+  :root {
+    --bg: #ffffff;
+    --surface: #f0f0f0;
+    --cell-bg: #ffffff;
+    --cell-border: #1a1a1a;
+    --text: #1a1a1a;
+    --text-muted: #555555;
+    --x-color: #1a1a1a;
+    --o-color: #1a1a1a;
+    --win-glow: #1a1a1a;
+    --btn-bg: #1a1a1a;
+    --btn-text: #ffffff;
+    --toggle-bg: #1a1a1a;
+    --toggle-knob: #ffffff;
+    --score-bg: #1a1a1a;
+    --score-text: #ffffff;
+    --status-color: #1a1a1a;
+    --shadow: rgba(0,0,0,0.18);
+    --cell-hover: #e8e8e8;
+    --divider: #1a1a1a;
+    --win-cell: #e0e0e0;
+  }
+
+  .dark-mode {
+    --bg: #0e0e0e;
+    --surface: #1c1c1c;
+    --cell-bg: #1c1c1c;
+    --cell-border: #e8e8e8;
+    --text: #f0f0f0;
+    --text-muted: #aaaaaa;
+    --x-color: #f0f0f0;
+    --o-color: #f0f0f0;
+    --win-glow: #ffffff;
+    --btn-bg: #f0f0f0;
+    --btn-text: #0e0e0e;
+    --toggle-bg: #f0f0f0;
+    --toggle-knob: #0e0e0e;
+    --score-bg: #f0f0f0;
+    --score-text: #0e0e0e;
+    --status-color: #f0f0f0;
+    --shadow: rgba(255,255,255,0.08);
+    --cell-hover: #2a2a2a;
+    --divider: #e8e8e8;
+    --win-cell: #2e2e2e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+
+  .game-root {
+    background: var(--bg);
+    min-height: 520px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem 2rem;
+    font-family: 'Fredoka One', 'Boogaloo', cursive;
+    position: relative;
+  }
+
+  .top-bar {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 28px;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toggle-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 14px;
+    color: var(--text-muted);
+    user-select: none;
+  }
+
+  .toggle {
+    width: 48px;
+    height: 26px;
+    background: var(--toggle-bg);
+    border-radius: 13px;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid var(--cell-border);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--toggle-knob);
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.3s;
+  }
+
+  .dark-mode .toggle-knob {
+    transform: translateX(22px);
+  }
+
+  .scores {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    max-width: 360px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .score-card {
+    background: var(--score-bg);
+    color: var(--score-text);
+    border-radius: 14px;
+    padding: 8px 18px;
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    min-width: 80px;
+    border: 2.5px solid var(--cell-border);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .score-card.active-player {
+    box-shadow: 0 0 0 3px var(--win-glow);
+  }
+
+  .score-label {
+    font-size: 13px;
+    opacity: 0.85;
+  }
+
+  .score-val {
+    font-size: 26px;
+    line-height: 1.1;
+  }
+
+  .score-divider {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+  }
+
+  .status-msg {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: var(--status-color);
+    margin-bottom: 1rem;
+    min-height: 28px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    max-width: 312px;
+    width: 100%;
+    margin-bottom: 1.2rem;
+    border: 3px solid var(--cell-border);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--cell-border);
+    box-shadow: 6px 6px 0px var(--shadow);
+  }
+
+  .cell {
+    background: var(--cell-bg);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 56px;
+    font-family: 'Fredoka One', cursive;
+    border: 1.5px solid var(--cell-border);
+    transition: background 0.15s, transform 0.1s;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cell:hover:not(.taken) {
+    background: var(--cell-hover);
+  }
+
+  .cell.taken {
+    cursor: default;
+  }
+
+  .cell.win-cell {
+    background: var(--win-cell);
+    animation: winPulse 0.4s ease;
+  }
+
+  @keyframes winPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  .cell-x {
+    color: var(--x-color);
+    display: inline-block;
+    animation: popIn 0.18s cubic-bezier(.4,0,.2,1);
+  }
+
+  .cell-o {
+    color: var(--o-color);
+    display: inline-block;
+    animation: popIn 0.18s cubic-bezier(.4,0,.2,1);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    80% { transform: scale(1.15) rotate(4deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 17px;
+    padding: 10px 26px;
+    border-radius: 50px;
+    border: 2.5px solid var(--cell-border);
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: transform 0.12s, background 0.3s, color 0.3s;
+  }
+
+  .btn:hover { transform: scale(1.04) translateY(-2px); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+  }
+</style>
+
+<div class="game-root" id="gameRoot">
+
+  <div class="top-bar">
+    <div class="game-title">Tic Tac Toe</div>
+    <div class="toggle-wrap">
+      <span class="toggle-label" id="modeLabel">Light</span>
+      <div class="toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <div class="toggle-knob"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scores">
+    <div class="score-card" id="scoreX">
+      <div class="score-label">Player X</div>
+      <div class="score-val" id="xScore">0</div>
+    </div>
+    <div class="score-divider">—</div>
+    <div class="score-card" id="scoreO">
+      <div class="score-label">Player O</div>
+      <div class="score-val" id="oScore">0</div>
+    </div>
+  </div>
+
+  <div class="status-msg" id="statusMsg">Player X's turn</div>
+
+  <div class="board" id="board">
+    <div class="cell" data-i="0" onclick="cellClick(0)"></div>
+    <div class="cell" data-i="1" onclick="cellClick(1)"></div>
+    <div class="cell" data-i="2" onclick="cellClick(2)"></div>
+    <div class="cell" data-i="3" onclick="cellClick(3)"></div>
+    <div class="cell" data-i="4" onclick="cellClick(4)"></div>
+    <div class="cell" data-i="5" onclick="cellClick(5)"></div>
+    <div class="cell" data-i="6" onclick="cellClick(6)"></div>
+    <div class="cell" data-i="7" onclick="cellClick(7)"></div>
+    <div class="cell" data-i="8" onclick="cellClick(8)"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" onclick="resetGame()">New Game</button>
+    <button class="btn btn-ghost" onclick="resetScores()">Reset Scores</button>
+  </div>
+</div>
+
+<script>
+  const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  let board = Array(9).fill(null);
+  let current = 'X';
+  let scores = {X: 0, O: 0};
+  let gameOver = false;
+
+  function cellClick(i) {
+    if (gameOver || board[i]) return;
+    board[i] = current;
+    renderBoard();
+    const result = checkWin();
+    if (result) {
+      if (result === 'draw') {
+        document.getElementById('statusMsg').textContent = "It's a draw!";
+      } else {
+        scores[result]++;
+        updateScores();
+        document.getElementById('statusMsg').textContent = `Player ${result} wins! 🎉`;
+        highlightWin(result);
+      }
+      gameOver = true;
+    } else {
+      current = current === 'X' ? 'O' : 'X';
+      document.getElementById('statusMsg').textContent = `Player ${current}'s turn`;
+      updateActivePlayer();
+    }
+  }
+
+  function renderBoard() {
+    document.querySelectorAll('.cell').forEach((cell, i) => {
+      if (board[i]) {
+        cell.innerHTML = `<span class="cell-${board[i].toLowerCase()}">${board[i]}</span>`;
+        cell.classList.add('taken');
+      }
+    });
+  }
+
+  function checkWin() {
+    for (const [a,b,c] of WINS) {
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+    }
+    if (board.every(Boolean)) return 'draw';
+    return null;
+  }
+
+  function highlightWin(player) {
+    for (const [a,b,c] of WINS) {
+      if (board[a] === player && board[b] === player && board[c] === player) {
+        [a,b,c].forEach(i => document.querySelector(`[data-i="${i}"]`).classList.add('win-cell'));
+        break;
+      }
+    }
+  }
+
+  function updateScores() {
+    document.getElementById('xScore').textContent = scores.X;
+    document.getElementById('oScore').textContent = scores.O;
+  }
+
+  function updateActivePlayer() {
+    document.getElementById('scoreX').classList.toggle('active-player', current === 'X');
+    document.getElementById('scoreO').classList.toggle('active-player', current === 'O');
+  }
+
+  function resetGame() {
+    board = Array(9).fill(null);
+    current = 'X';
+    gameOver = false;
+    document.querySelectorAll('.cell').forEach(cell => {
+      cell.innerHTML = '';
+      cell.classList.remove('taken', 'win-cell');
+    });
+    document.getElementById('statusMsg').textContent = "Player X's turn";
+    document.getElementById('scoreX').classList.add('active-player');
+    document.getElementById('scoreO').classList.remove('active-player');
+  }
+
+  function resetScores() {
+    scores = {X: 0, O: 0};
+    updateScores();
+    resetGame();
+  }
+
+  function toggleTheme() {
+    const root = document.getElementById('gameRoot');
+    const isDark = root.classList.toggle('dark-mode');
+    document.getElementById('modeLabel').textContent = isDark ? 'Dark' : 'Light';
+  }
+
+  updateActivePlayer();
+</script>
