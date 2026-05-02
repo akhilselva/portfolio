@@ -2,232 +2,369 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Akhil & Anjali's Wishlist</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akhil & Anjali's Wishlist</title>
 
-	<meta property="og:title" content="Akhil & Anjali's Wishlist" />
-	<meta property="og:description" content="Pick up to 3 items you would like to gift us." />
-	<meta property="og:image" content="akhil-anjali.jpg" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="" />
+  <meta property="og:title" content="Akhil & Anjali's Wishlist" />
+  <meta property="og:description" content="Pick up to 3 items you would like to gift us." />
+  <meta property="og:image" content="https://akhilselva.com/labs/akhil-anjali-wishlist/akhil-anjali.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://akhilselva.com/labs/akhil-anjali-wishlist/" />
 
-	<link href="https://cdn.jsdelivr.net/npm/vuetify@3.7.6/dist/vuetify.min.css" rel="stylesheet" />
-	<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
-	<link rel="stylesheet" href="./styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7.6/dist/vuetify.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
-	<div id="app" v-cloak>
-		<v-app :theme="currentTheme">
-			<v-main>
-				<v-container class="page-container">
-					<v-card elevation="2" rounded="xl">
-						<v-card-title class="d-flex align-center justify-space-between flex-wrap ga-3">
-							<span class="text-h4 text-md-h3">Akhil & Anjali's Wishlist</span>
+  <div id="app" v-cloak>
+    <v-app :theme="currentTheme" :data-theme="isDarkMode ? 'dark' : 'light'">
+      <v-main>
+        <v-container class="page-container">
+          <v-card class="main-card" elevation="0">
 
-							<div>
-								<v-btn variant="text" @click="goTo('#/wishlist')">
-									Wishlist
-								</v-btn>
+            <!-- ── Header ── -->
+            <v-card-title class="app-header">
+              <div class="header-top">
+                <h1 class="site-title">
+                  <em>Akhil</em> &amp; <em>Anjali</em>
+                </h1>
+                <div class="header-nav">
+                  <v-btn
+                    class="nav-btn"
+                    :class="{ active: !isAdminRoute }"
+                    variant="text"
+                    @click="goTo('#/wishlist')"
+                  >
+                    Wishlist
+                  </v-btn>
+                  <v-btn
+                    class="nav-btn"
+                    :class="{ active: isAdminRoute }"
+                    variant="text"
+                    @click="goTo('#/admin')"
+                  >
+                    Admin
+                  </v-btn>
+                  <v-btn
+                    class="theme-btn"
+                    icon
+                    variant="text"
+                    :title="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+                    @click="toggleTheme"
+                  >
+                    <v-icon>
+                      {{ isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night' }}
+                    </v-icon>
+                  </v-btn>
+                </div>
+              </div>
+            </v-card-title>
 
-								<v-btn variant="text" @click="goTo('#/admin')"> Admin </v-btn>
+            <!-- ═══════════════════════════════════
+                 WISHLIST ROUTE
+            ═══════════════════════════════════ -->
+            <template v-if="!isAdminRoute">
+              <div class="page-subtitle">Gift wishlist</div>
 
-								<v-btn icon variant="text" :title="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-									@click="toggleTheme">
-									<v-icon>
-										{{ isDarkMode ? "mdi-weather-sunny" : "mdi-weather-night" }}
-									</v-icon>
-								</v-btn>
-							</div>
-						</v-card-title>
+              <v-card-text class="card-content">
 
-						<template v-if="!isAdminRoute">
-							<v-card-subtitle class="text-body-1">
-								Pick up to 3 items you would like to gift us.
-							</v-card-subtitle>
+                <!-- Loading -->
+                <div v-if="isLoading" class="loading-wrap">
+                  <v-progress-circular indeterminate color="var(--tc-primary)" size="28" width="2"></v-progress-circular>
+                  <span>Loading wishlist…</span>
+                </div>
 
-							<v-card-text>
+                <template v-else>
+                  <!-- Alerts -->
+                  <div v-if="infoMessage" class="tc-alert info mb-4 pa-3">
+                    <span class="mdi mdi-information-outline me-2"></span>{{ infoMessage }}
+                  </div>
+                  <div v-if="successMessage" class="tc-alert success mb-4 pa-3">
+                    <span class="mdi mdi-check-circle-outline me-2"></span>{{ successMessage }}
+                  </div>
+                  <div v-if="errorMessage" class="tc-alert error mb-4 pa-3">
+                    <span class="mdi mdi-alert-circle-outline me-2"></span>{{ errorMessage }}
+                  </div>
 
-								<v-alert v-if="isLoading" type="info" variant="tonal" rounded="lg" class="mb-4">
-									Loading wishlist...
-								</v-alert>
+                  <!-- Selection counter -->
+                  <div class="selection-badge">
+                    <span class="badge-count">{{ selectedCount }}</span>
+                    <span>of 3 items selected</span>
+                  </div>
 
-								<v-chip color="primary" variant="tonal" class="mb-4">
-									Selected: {{ selectedCount }} / 3
-								</v-chip>
+                  <!-- Item grid -->
+                  <v-row dense class="mb-2">
+                    <v-col
+                      v-for="item in wishlistItems"
+                      :key="item.id"
+                      cols="12"
+                      sm="6"
+                    >
+                      <v-card
+                        class="item-card"
+                        :class="{ 'is-selected': isSelected(item.id) }"
+                        elevation="0"
+                      >
+                        <v-card-title class="item-name pt-4 px-4 pb-0">
+                          {{ item.name }}
+                        </v-card-title>
 
-								<v-row>
-									<v-col v-for="item in wishlistItems" :key="item.id" cols="12" md="6">
-										<v-card variant="outlined" rounded="xl">
-											<v-card-title>{{ item.name }}</v-card-title>
+                        <v-card-subtitle class="item-added-by px-4 pt-1 pb-0">
+                          Added by {{ item.addedBy }}
+                        </v-card-subtitle>
 
-											<v-card-subtitle>
-												Added by {{ item.addedBy }}
-											</v-card-subtitle>
+                        <v-card-text class="item-description px-4 pt-3 pb-2">
+                          {{ item.description }}
 
-											<v-card-text>
-												{{ item.description }}
+                          <div class="mt-3">
+                            <span
+                              v-if="getCommittedNames(item.id).length"
+                              class="commitment-chip committed"
+                            >
+                              <span class="mdi mdi-gift-outline me-1"></span>
+                              {{ getCommittedNames(item.id).join(', ') }}
+                            </span>
+                            <span v-else class="commitment-chip uncommitted">
+                              Not committed yet
+                            </span>
+                          </div>
+                        </v-card-text>
 
-												<div class="mt-4">
-													<v-chip v-if="getCommittedNames(item.id).length" color="success" variant="tonal">
-														Committed by {{ getCommittedNames(item.id).join(", ") }}
-													</v-chip>
+                        <v-card-actions class="item-actions">
+                          <v-btn
+                            v-if="item.url"
+                            :href="item.url"
+                            target="_blank"
+                            variant="text"
+                            class="view-link-btn"
+                            prepend-icon="mdi-open-in-new"
+                            size="small"
+                          >
+                            View item
+                          </v-btn>
 
-													<v-chip v-else color="grey" variant="tonal">
-														Not committed yet
-													</v-chip>
-												</div>
-											</v-card-text>
+                          <v-spacer></v-spacer>
 
-											<v-card-actions>
-												<v-btn v-if="item.url" :href="item.url" target="_blank" variant="text"
-													prepend-icon="mdi-open-in-new">
-													View item
-												</v-btn>
+                          <v-btn
+                            class="select-btn"
+                            :class="isSelected(item.id) ? 'selected' : 'unselected'"
+                            :variant="isSelected(item.id) ? 'flat' : 'outlined'"
+                            size="small"
+                            @click="toggleItem(item.id)"
+                          >
+                            <span class="mdi me-1" :class="isSelected(item.id) ? 'mdi-check' : 'mdi-plus'"></span>
+                            {{ isSelected(item.id) ? 'Selected' : 'Select' }}
+                          </v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
 
-												<v-spacer></v-spacer>
+                  <v-divider class="tc-divider"></v-divider>
 
-												<v-btn :color="isSelected(item.id) ? 'primary' : 'default'"
-													:variant="isSelected(item.id) ? 'flat' : 'outlined'" @click="toggleItem(item.id)">
-													{{ isSelected(item.id) ? "Selected" : "Select" }}
-												</v-btn>
-											</v-card-actions>
-										</v-card>
-									</v-col>
-								</v-row>
+                  <!-- Privacy note -->
+                  <div class="privacy-note">
+                    <span class="mdi mdi-shield-lock-outline"></span>
+                    Your phone number is used only to help you update or remove your own selection later. It will not be shown publicly.
+                  </div>
 
-								<v-divider class="my-6"></v-divider>
+                  <!-- Form -->
+                  <v-row align="end">
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        v-model="visitorName"
+                        label="Your name"
+                        variant="outlined"
+                        density="comfortable"
+                        clearable
+                        hide-details
+                      ></v-text-field>
+                    </v-col>
 
-								<v-alert type="info" variant="tonal" rounded="lg" class="mb-6">
-									Your phone number is used only to help you update or remove
-									your own selection later. It will not be shown publicly.
-								</v-alert>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        v-model="visitorPhone"
+                        label="Phone number"
+                        variant="outlined"
+                        density="comfortable"
+                        clearable
+                        type="tel"
+                        hide-details
+                      ></v-text-field>
+                    </v-col>
 
-								<v-alert v-if="successMessage" type="success" variant="tonal" rounded="lg" class="mb-4">
-									{{ successMessage }}
-								</v-alert>
+                    <v-col cols="12" sm="4">
+                      <div class="form-actions">
+                        <v-btn
+                          class="btn-secondary"
+                          variant="flat"
+                          :loading="isLookupLoading"
+                          :disabled="!canLookupCommitment || isLookupLoading"
+                          @click="lookupCommitment"
+                        >
+                          <span class="mdi mdi-magnify me-1"></span> Find
+                        </v-btn>
 
-								<v-alert v-if="errorMessage" type="error" variant="tonal" rounded="lg" class="mb-4">
-									{{ errorMessage }}
-								</v-alert>
+                        <v-btn
+                          class="btn-save"
+                          variant="flat"
+                          :loading="isSaveLoading"
+                          :disabled="!canSubmitCommitment || isSaveLoading"
+                          @click="submitCommitment"
+                        >
+                          <span class="mdi mdi-content-save-outline me-1"></span> Save
+                        </v-btn>
 
-								<v-alert v-if="infoMessage" type="info" variant="tonal" rounded="lg" class="mb-4">
-									{{ infoMessage }}
-								</v-alert>
+                        <v-btn
+                          class="btn-danger"
+                          variant="outlined"
+                          :loading="isClearLoading"
+                          :disabled="!canLookupCommitment || isClearLoading"
+                          @click="clearCommitment"
+                        >
+                          Clear
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </template>
 
-								<v-divider class="my-6"></v-divider>
+              </v-card-text>
+            </template>
 
-								<v-row>
-									<v-col cols="12" md="4">
-										<v-text-field v-model="visitorName" label="Name" variant="outlined" clearable></v-text-field>
-									</v-col>
+            <!-- ═══════════════════════════════════
+                 ADMIN ROUTE
+            ═══════════════════════════════════ -->
+            <template v-else>
+              <div class="page-subtitle">Admin area</div>
 
-									<v-col cols="12" md="4">
-										<v-text-field v-model="visitorPhone" label="Phone" variant="outlined" clearable
-											type="tel"></v-text-field>
-									</v-col>
+              <v-card-text class="card-content">
 
-									<v-col cols="12" md="4">
-										<div class="form-actions">
-											<v-btn color="secondary" variant="tonal" :loading="isLookupLoading"
-												:disabled="!canLookupCommitment || isLookupLoading" @click="lookupCommitment">
-												Find
-											</v-btn>
+                <!-- Alerts -->
+                <div v-if="successMessage" class="tc-alert success mb-4 pa-3">
+                  <span class="mdi mdi-check-circle-outline me-2"></span>{{ successMessage }}
+                </div>
+                <div v-if="errorMessage" class="tc-alert error mb-4 pa-3">
+                  <span class="mdi mdi-alert-circle-outline me-2"></span>{{ errorMessage }}
+                </div>
 
-											<v-btn color="primary" :loading="isSaveLoading" :disabled="!canSubmitCommitment || isSaveLoading"
-												@click="submitCommitment">
-												Save
-											</v-btn>
+                <!-- Login form -->
+                <template v-if="!isAdminLoggedIn">
+                  <v-row>
+                    <v-col cols="12" sm="4">
+                      <v-select
+                        v-model="adminUser"
+                        label="Admin user"
+                        :items="['akhil', 'anjali']"
+                        variant="outlined"
+                        density="comfortable"
+                        hide-details
+                      ></v-select>
+                    </v-col>
 
-											<v-btn color="error" variant="tonal" :loading="isClearLoading"
-												:disabled="!canLookupCommitment || isClearLoading" @click="clearCommitment">
-												Clear
-											</v-btn>
-										</div>
-									</v-col>
-								</v-row>
-							</v-card-text>
-						</template>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        v-model="adminPassword"
+                        label="Password"
+                        type="password"
+                        variant="outlined"
+                        density="comfortable"
+                        hide-details
+                      ></v-text-field>
+                    </v-col>
 
-						<template v-else>
-							<v-card-subtitle class="text-body-1">
-								Admin area
-							</v-card-subtitle>
+                    <v-col cols="12" sm="4">
+                      <v-btn
+                        class="btn-save"
+                        variant="flat"
+                        size="large"
+                        :loading="isAdminLoginLoading"
+                        :disabled="!canAdminLogin || isAdminLoginLoading"
+                        @click="adminLogin"
+                      >
+                        Login
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </template>
 
-							<v-card-text>
-								<v-alert v-if="successMessage" type="success" variant="tonal" rounded="lg" class="mb-4">
-									{{ successMessage }}
-								</v-alert>
+                <!-- Logged-in admin panel -->
+                <template v-else>
+                  <div class="admin-badge">
+                    <span class="mdi mdi-account-circle-outline"></span>
+                    Logged in as {{ adminLoggedInUser }}
+                  </div>
 
-								<v-alert v-if="errorMessage" type="error" variant="tonal" rounded="lg" class="mb-4">
-									{{ errorMessage }}
-								</v-alert>
+                  <v-row>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        v-model="adminItemName"
+                        label="Item name"
+                        variant="outlined"
+                        density="comfortable"
+                        clearable
+                        hide-details
+                      ></v-text-field>
+                    </v-col>
 
-								<template v-if="!isAdminLoggedIn">
-									<v-row>
-										<v-col cols="12" md="4">
-											<v-select v-model="adminUser" label="Admin user" :items="['akhil', 'anjali']"
-												variant="outlined"></v-select>
-										</v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        v-model="adminItemUrl"
+                        label="Item URL"
+                        variant="outlined"
+                        density="comfortable"
+                        clearable
+                        hide-details
+                      ></v-text-field>
+                    </v-col>
 
-										<v-col cols="12" md="4">
-											<v-text-field v-model="adminPassword" label="Password" type="password"
-												variant="outlined"></v-text-field>
-										</v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        v-model="adminItemDescription"
+                        label="Description"
+                        variant="outlined"
+                        density="comfortable"
+                        clearable
+                        hide-details
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
 
-										<v-col cols="12" md="4">
-											<v-btn color="primary" size="large" :loading="isAdminLoginLoading"
-												:disabled="!canAdminLogin || isAdminLoginLoading" @click="adminLogin">
-												Login
-											</v-btn>
-										</v-col>
-									</v-row>
-								</template>
+                  <div class="form-actions mt-4">
+                    <v-btn
+                      class="btn-save"
+                      variant="flat"
+                      :loading="isAdminAddLoading"
+                      :disabled="!canAddAdminItem || isAdminAddLoading"
+                      @click="addAdminItem"
+                    >
+                      <span class="mdi mdi-plus me-1"></span> Add item
+                    </v-btn>
 
-								<template v-else>
-									<v-alert type="info" variant="tonal" rounded="lg" class="mb-6">
-										Logged in as {{ adminLoggedInUser }}.
-									</v-alert>
+                    <v-btn
+                      class="btn-danger"
+                      variant="outlined"
+                      @click="adminLogout"
+                    >
+                      <span class="mdi mdi-logout me-1"></span> Logout
+                    </v-btn>
+                  </div>
+                </template>
 
-									<v-row>
-										<v-col cols="12" md="4">
-											<v-text-field v-model="adminItemName" label="Item name" variant="outlined"
-												clearable></v-text-field>
-										</v-col>
+              </v-card-text>
+            </template>
 
-										<v-col cols="12" md="4">
-											<v-text-field v-model="adminItemUrl" label="Item URL" variant="outlined" clearable></v-text-field>
-										</v-col>
+          </v-card>
+        </v-container>
+      </v-main>
+    </v-app>
+  </div>
 
-										<v-col cols="12" md="4">
-											<v-text-field v-model="adminItemDescription" label="Description" variant="outlined"
-												clearable></v-text-field>
-										</v-col>
-									</v-row>
-
-									<div class="form-actions">
-										<v-btn color="primary" :loading="isAdminAddLoading"
-											:disabled="!canAddAdminItem || isAdminAddLoading" @click="addAdminItem">
-											Add item
-										</v-btn>
-
-										<v-btn color="error" variant="tonal" @click="adminLogout">
-											Logout
-										</v-btn>
-									</div>
-								</template>
-							</v-card-text>
-						</template>
-					</v-card>
-				</v-container>
-			</v-main>
-		</v-app>
-	</div>
-
-	<script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vuetify@3.7.6/dist/vuetify.min.js"></script>
-	<script src="./app.js"></script>
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7.6/dist/vuetify.min.js"></script>
+  <script src="./app.js"></script>
 </body>
 
 </html>
