@@ -7,7 +7,7 @@ const vuetify = createVuetify({
   }
 });
 
-const API_BASE_URL = "https://wishlist-api.akhilselva.com";
+const API_BASE_URL = "https://akhilselva.com/api/wishlist";
 
 const DUMMY_ITEMS = [
   {
@@ -109,9 +109,11 @@ createApp({
         this.selectedItemIds.length <= 3
       );
     },
+
     currentTheme() {
       return this.isDarkMode ? "dark" : "light";
     },
+
     //admin computed
     isAdminLoggedIn() {
       return Boolean(this.adminToken);
@@ -126,12 +128,22 @@ createApp({
     },
   },
 
+  watch: {
+    // Sync data-theme attribute on <body> so CSS custom property overrides work
+    isDarkMode(val) {
+      document.body.setAttribute("data-theme", val ? "dark" : "light");
+    },
+  },
+
   async mounted() {
     window.addEventListener("hashchange", this.syncRoute);
 
     if (!window.location.hash) {
       window.location.hash = "#/wishlist";
     }
+
+    // Apply initial theme attribute
+    document.body.setAttribute("data-theme", this.isDarkMode ? "dark" : "light");
 
     await this.loadWishlistData();
   },
@@ -147,8 +159,8 @@ createApp({
 
       try {
         const [itemsResponse, commitmentsResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/items`),
-          fetch(`${API_BASE_URL}/api/commitments`),
+          fetch(`${API_BASE_URL}/items`),
+          fetch(`${API_BASE_URL}/commitments`),
         ]);
 
         if (!itemsResponse.ok || !commitmentsResponse.ok) {
@@ -226,7 +238,7 @@ createApp({
       this.isLookupLoading = true;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/commitments/lookup`, {
+        const res = await fetch(`${API_BASE_URL}/commitments/lookup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -268,7 +280,7 @@ createApp({
       this.isSaveLoading = true;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/commitments`, {
+        const res = await fetch(`${API_BASE_URL}/commitments`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -304,7 +316,7 @@ createApp({
       this.isClearLoading = true;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/commitments`, {
+        const res = await fetch(`${API_BASE_URL}/commitments`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -348,7 +360,7 @@ createApp({
       this.isAdminLoginLoading = true;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
+        const res = await fetch(`${API_BASE_URL}/admin/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -400,7 +412,7 @@ createApp({
       this.isAdminAddLoading = true;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/items`, {
+        const res = await fetch(`${API_BASE_URL}/admin/items`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
