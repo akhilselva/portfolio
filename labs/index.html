@@ -1,14 +1,122 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta name="robots" content="noindex, nofollow">
-<title>Labs</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a4f6e">
+  <title>Labs · Akhil Selvakumar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sand: #f5efe3;
+      --sand-dark: #e8dcc8;
+      --ocean: #0a4f6e;
+      --ocean-mid: #1a7a9e;
+      --ocean-light: #2fa8cc;
+      --coral: #e8614a;
+      --sun: #f2a73b;
+      --white: #fffdf8;
+      --ink: #1a2a35;
+      --muted: #5a7a8a;
+      --line: rgba(10, 79, 110, .14);
+      --display: 'Playfair Display', Georgia, serif;
+      --body: 'Outfit', sans-serif;
+      --mono: 'Space Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+    html { scroll-behavior: smooth; }
+    body { min-width: 320px; background: var(--sand); color: var(--ink); font-family: var(--body); line-height: 1.6; }
+    body::after { content: ''; position: fixed; inset: 0; z-index: 20; pointer-events: none; opacity: .025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    a { color: inherit; }
+
+    .horizon { height: 5px; position: fixed; inset: 0 0 auto; z-index: 10; background: linear-gradient(90deg, var(--coral), var(--sun) 35%, var(--ocean-light) 65%, var(--ocean)); }
+    nav { min-height: 78px; padding: 1rem max(5vw, 1.5rem); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(245,239,227,.88); backdrop-filter: blur(12px); position: relative; z-index: 1; }
+    .logo { font: italic 1.15rem var(--display); color: var(--ocean); text-decoration: none; }
+    .back { display: inline-flex; align-items: center; gap: .55rem; color: var(--muted); font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; transition: color .2s, transform .2s; }
+    .back:hover { color: var(--ocean); transform: translateX(-3px); }
+
+    main { max-width: 1160px; margin: 0 auto; padding: clamp(4rem, 9vw, 7.5rem) max(5vw, 1.5rem) 5rem; }
+    .eyebrow { color: var(--coral); font: .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+    .hero { max-width: 720px; animation: rise .7s ease both; }
+    h1 { margin: .7rem 0 1.25rem; color: var(--ocean); font: 700 clamp(3rem, 8vw, 6rem)/.98 var(--display); letter-spacing: -.055em; }
+    h1 em { color: var(--coral); font-weight: 400; }
+    .intro { max-width: 550px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.17rem); }
+    .intro strong { color: var(--ocean); font-weight: 600; }
+
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin: clamp(4rem, 8vw, 6.5rem) 0 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+    h2 { color: var(--ocean); font: 700 clamp(1.7rem, 4vw, 2.5rem)/1.1 var(--display); letter-spacing: -.035em; }
+    .count { color: var(--muted); font: .68rem var(--mono); letter-spacing: .1em; white-space: nowrap; }
+    .lab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+    .lab-card { min-height: 315px; padding: clamp(1.5rem, 4vw, 2.25rem); display: flex; flex-direction: column; position: relative; overflow: hidden; color: var(--white); text-decoration: none; background: var(--ocean); box-shadow: 0 10px 25px rgba(10,79,110,.08); transition: transform .3s ease, box-shadow .3s ease; }
+    .lab-card::before { content: ''; width: 260px; height: 260px; position: absolute; right: -80px; bottom: -125px; border: 1px solid rgba(255,255,255,.23); border-radius: 50%; transition: transform .5s ease; }
+    .lab-card::after { content: ''; width: 180px; height: 180px; position: absolute; right: -30px; bottom: -85px; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; transition: transform .5s ease .04s; }
+    .lab-card:hover { transform: translateY(-6px); box-shadow: 0 20px 36px rgba(10,79,110,.2); }
+    .lab-card:hover::before { transform: scale(1.25); }
+    .lab-card:hover::after { transform: scale(1.38); }
+    .lab-card--coral { background: var(--coral); }
+    .lab-card--coral::before, .lab-card--coral::after { border-color: rgba(255,253,248,.27); }
+    .card-label, .card-body, .card-footer { position: relative; z-index: 1; }
+    .card-label { font: .66rem var(--mono); letter-spacing: .12em; opacity: .82; text-transform: uppercase; }
+    .card-icon { width: 50px; height: 50px; margin: auto 0 1.25rem; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; font: 1.4rem var(--display); }
+    h3 { font: 700 clamp(1.65rem, 3vw, 2.1rem)/1.08 var(--display); letter-spacing: -.035em; }
+    .card-body { margin-top: .7rem; max-width: 365px; font-size: .96rem; opacity: .88; }
+    .card-footer { margin-top: auto; padding-top: 2rem; display: flex; align-items: center; justify-content: space-between; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .arrow { font-size: 1.4rem; line-height: 1; transition: transform .25s; }
+    .lab-card:hover .arrow { transform: translateX(5px); }
+    .note { margin-top: 1.5rem; color: var(--muted); font-size: .85rem; }
+
+    footer { padding: 1.5rem max(5vw, 1.5rem) 2.5rem; color: var(--muted); font: .67rem var(--mono); letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 650px) { nav { min-height: 68px; } .lab-grid { grid-template-columns: 1fr; } .lab-card { min-height: 290px; } .section-head { margin-top: 4rem; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
 </head>
 <body>
-<h1>Labs</h1>
-<a href="/">Go back to homepage</a><br>
-<!-- Add links to subfolders as needed -->
-<a href="/labs/akhil-anjali-wishlist/">Akhil & Anjali's Wishlist</a><br>
-<a href="/labs/games/tic-tac-toe.html">Tic Tac Toe</a><br>
+  <div class="horizon"></div>
+  <nav aria-label="Primary navigation">
+    <a class="logo" href="/">Akhil Selvakumar</a>
+    <a class="back" href="/" aria-label="Return to portfolio homepage"><span aria-hidden="true">←</span> Portfolio</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">A small corner of the internet</p>
+      <h1>Things I make <em>for fun.</em></h1>
+      <p class="intro">Experiments, tiny tools, and side projects that don’t quite belong in a résumé—but are still worth sharing.</p>
+    </header>
+
+    <section aria-labelledby="projects-title">
+      <div class="section-head">
+        <h2 id="projects-title">Current experiments</h2>
+        <span class="count">02 projects</span>
+      </div>
+      <div class="lab-grid">
+        <a class="lab-card lab-card--coral" href="/labs/akhil-anjali-wishlist/">
+          <span class="card-label">Web app · Personal</span>
+          <div class="card-icon" aria-hidden="true">♡</div>
+          <div class="card-body">
+            <h3>Akhil &amp; Anjali’s Wishlist</h3>
+            <p>Choose a gift from our curated wishlist.</p>
+          </div>
+          <div class="card-footer"><span>Open project</span><span class="arrow" aria-hidden="true">→</span></div>
+        </a>
+        <a class="lab-card" href="/labs/games/tic-tac-toe.html">
+          <span class="card-label">Game · Browser</span>
+          <div class="card-icon" aria-hidden="true">✕</div>
+          <div class="card-body">
+            <h3>Tic-Tac-Toe</h3>
+            <p>A clean, quick little game for a two-player break.</p>
+          </div>
+          <div class="card-footer"><span>Play game</span><span class="arrow" aria-hidden="true">→</span></div>
+        </a>
+      </div>
+      <p class="note">More small experiments may appear here from time to time.</p>
+    </section>
+  </main>
+  <footer>© 2026 Akhil Selvakumar · Built with curiosity</footer>
 </body>
 </html>
