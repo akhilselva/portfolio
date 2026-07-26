@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0f19">
+  <title>Route Planner · Labs · Akhil Selvakumar</title>
+  <meta name="description"
+    content="A minimalist driving route planner with realistic travel times, fuel estimations, and arrival weather forecasts.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <div class="horizon"></div>
+
+  <nav aria-label="Primary navigation">
+    <a class="logo" href="/">Akhil Selvakumar</a>
+    <a class="back" href="/labs/" aria-label="Return to Labs"><span aria-hidden="true">←</span> Labs</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Lab 03 · Monochromatic Tool</p>
+      <h1>Driving <em>Route Planner</em></h1>
+      <p class="intro">Calculate realistic road travel durations, arrival weather forecasts, fuel consumption, and trip
+        costs across your multi-city itinerary.</p>
+    </header>
+
+    <div class="app-layout">
+      <!-- Left Column: Parameters & City Inputs -->
+      <section class="panel form-panel" aria-labelledby="form-title">
+        <h2 id="form-title" class="panel-title">Trip Configuration</h2>
+
+        <form id="route-form" novalidate>
+          <fieldset class="form-section">
+            <legend class="section-label">1. Vehicle &amp; Schedule</legend>
+
+            <div class="input-grid">
+              <div class="input-group">
+                <label for="mileage">Fuel Mileage (km/L)</label>
+                <input type="number" id="mileage" name="mileage" step="0.1" min="0.1" value="15" required
+                  aria-describedby="mileage-hint">
+                <span id="mileage-hint" class="input-hint">Average distance per litre</span>
+              </div>
+
+              <div class="input-group">
+                <label for="petrolPrice">Petrol Price (₹/L)</label>
+                <input type="number" id="petrolPrice" name="petrolPrice" step="0.5" min="0.1" value="100" required
+                  aria-describedby="price-hint">
+                <span id="price-hint" class="input-hint">Cost per litre of fuel</span>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="startTime">Departure Date &amp; Time</label>
+              <input type="datetime-local" id="startTime" name="startTime" required aria-describedby="time-hint">
+              <span id="time-hint" class="input-hint">Local departure time at starting location</span>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-section">
+            <legend class="section-label">2. Ordered Destinations</legend>
+            <p class="field-guidance">Enter cities in exact journey order (min. 2 stops). Include country code for
+              accurate matching (e.g. <code>Bangalore, IN</code> or <code>Mumbai, IN</code>).</p>
+
+            <div id="city-list" class="city-list">
+              <!-- Default Stop 1 -->
+              <div class="city-row" data-index="0">
+                <div class="city-row-header">
+                  <label for="city-0" class="city-label">Stop 1 (Start)</label>
+                </div>
+                <div class="city-input-wrapper">
+                  <span class="city-num-badge">1</span>
+                  <input type="text" id="city-0" class="city-input" placeholder="e.g. Bangalore, IN"
+                    value="Bangalore, IN" required autocomplete="off">
+                  <button type="button" class="btn-remove-stop" title="Remove stop" aria-label="Remove Stop 1"
+                    disabled>✕</button>
+                </div>
+              </div>
+
+              <!-- Default Stop 2 -->
+              <div class="city-row" data-index="1">
+                <div class="city-row-header">
+                  <label for="city-1" class="city-label">Stop 2 (Destination)</label>
+                </div>
+                <div class="city-input-wrapper">
+                  <span class="city-num-badge">2</span>
+                  <input type="text" id="city-1" class="city-input" placeholder="e.g. Mumbai, IN" value="Mumbai, IN"
+                    required autocomplete="off">
+                  <button type="button" class="btn-remove-stop" title="Remove stop" aria-label="Remove Stop 2"
+                    disabled>✕</button>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" id="add-stop-btn" class="btn-add-stop">
+              <span aria-hidden="true">+</span> Add Stop
+            </button>
+          </fieldset>
+
+          <!-- Prompt container when OSRM routing is impossible -->
+          <div id="manual-distance-prompt" class="manual-distance-card" style="display: none;">
+            <p class="manual-distance-text">⚠️ Direct road route between these waypoints could not be auto-calculated
+              (NoRoute). Enter your approximate total distance below to complete calculations:</p>
+            <div class="manual-distance-input-row">
+              <div class="input-group">
+                <label for="manualDistance">Approx. Total Distance (km)</label>
+                <input type="number" id="manualDistance" min="1" step="1" placeholder="e.g. 500">
+              </div>
+            </div>
+          </div>
+
+          <!-- Shown only when OSRM cannot route between cities -->
+          <div id="manual-distance-prompt" class="manual-distance-card" style="display: none;" role="alert">
+            <p class="manual-distance-label">⚠️ Could not calculate a driving route between these waypoints. Enter an
+              approximate total distance to continue:</p>
+            <div class="manual-distance-row">
+              <input type="number" id="manualDistance" class="manual-distance-input" min="1" step="1"
+                placeholder="Total km (e.g. 500)" aria-label="Approximate total distance in kilometres">
+              <button type="button" id="submit-manual-btn" class="btn-manual-submit">Use this distance →</button>
+            </div>
+          </div>
+
+          <div id="form-error" class="form-error-banner" role="alert" style="display: none;"></div>
+
+          <button type="submit" id="submit-btn" class="btn-submit">
+            <span>Calculate Route &amp; Weather</span>
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Right Column: Results & Timeline -->
+      <section class="panel results-panel" aria-labelledby="results-title">
+        <div id="aria-status" class="sr-only" aria-live="polite"></div>
+
+        <!-- Empty Initial State -->
+        <div id="empty-state" class="results-empty">
+          <div class="empty-icon" aria-hidden="true">🌤️</div>
+          <h2 id="results-title">Arrival Weather &amp; Route Forecast</h2>
+          <p>Configure your parameters and cities on the left, then click <strong>Calculate Route &amp;
+              Weather</strong>.</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="results-loading" style="display: none;">
+          <div class="spinner" aria-hidden="true"></div>
+          <p class="loading-text">Resolving places, computing realistic itinerary, and loading weather forecasts...</p>
+        </div>
+
+        <!-- Active Results View -->
+        <div id="results-container" class="results-active" style="display: none;">
+          <header class="results-header">
+            <h2>Arrival Weather Forecasts</h2>
+            <p id="route-overview-subtitle" class="results-subtitle"></p>
+          </header>
+
+          <!-- Weather Alert Banner -->
+          <div id="weather-notice" class="weather-notice-banner" style="display: none;"></div>
+
+          <!-- WEATHER FIRST: Detailed Timeline of Stops with Weather Header -->
+          <div class="timeline-section">
+            <div id="stops-timeline" class="stops-timeline">
+              <!-- Stop cards injected dynamically -->
+            </div>
+          </div>
+
+          <!-- Key Metrics Summary Section Below Weather -->
+          <div class="metrics-section">
+            <h3 class="metrics-title">Trip Summary &amp; Fuel Estimation</h3>
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <span class="metric-label">Total Distance</span>
+                <span id="metric-distance" class="metric-value">--</span>
+                <span class="metric-unit">km</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">Real Travel Time</span>
+                <span id="metric-duration" class="metric-value">--</span>
+                <span class="metric-unit">incl. traffic &amp; rest breaks</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">Fuel Needed</span>
+                <span id="metric-fuel" class="metric-value">--</span>
+                <span class="metric-unit">litres</span>
+              </div>
+              <div class="metric-card metric-card--accent">
+                <span class="metric-label">Estimated Cost</span>
+                <span id="metric-cost" class="metric-value">--</span>
+                <span class="metric-unit">rupees (₹)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>© 2026 Akhil Selvakumar · Built with curiosity</footer>
+</body>
+
+</html>
