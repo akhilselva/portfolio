@@ -15,13 +15,24 @@
 
   <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7.6/dist/vuetify.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#faf9f6">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../shared.css">
   <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="logo" href="/" aria-label="Akhil Selvakumar, home">akhil<span>.</span></a>
+    <div class="header-actions"><nav aria-label="Primary navigation"><a href="/labs/"><span aria-hidden="true">←</span> Labs</a></nav>
+      <div class="theme-control" hidden><button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch colour theme"></button></div>
+    </div>
+  </div></header>
   <div id="app" v-cloak>
     <v-app :theme="currentTheme" :data-theme="isDarkMode ? 'dark' : 'light'">
-      <v-main>
+      <v-main id="main">
         <v-container class="page-container">
           <v-card class="main-card" elevation="0">
 
@@ -48,17 +59,7 @@
                   >
                     Admin
                   </v-btn>
-                  <v-btn
-                    class="theme-btn"
-                    icon
-                    variant="text"
-                    :title="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-                    @click="toggleTheme"
-                  >
-                    <v-icon>
-                      {{ isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night' }}
-                    </v-icon>
-                  </v-btn>
+
                 </div>
               </div>
             </v-card-title>
@@ -80,13 +81,13 @@
                 <template v-else>
                   <!-- Alerts -->
                   <div v-if="infoMessage" class="tc-alert info mb-4 pa-3">
-                    <span class="mdi mdi-information-outline me-2"></span>{{ infoMessage }}
+                    <span class="mdi mdi-information-outline me-2" aria-hidden="true"></span>{{ infoMessage }}
                   </div>
                   <div v-if="successMessage" class="tc-alert success mb-4 pa-3">
-                    <span class="mdi mdi-check-circle-outline me-2"></span>{{ successMessage }}
+                    <span class="mdi mdi-check-circle-outline me-2" aria-hidden="true"></span>{{ successMessage }}
                   </div>
                   <div v-if="errorMessage" class="tc-alert error mb-4 pa-3">
-                    <span class="mdi mdi-alert-circle-outline me-2"></span>{{ errorMessage }}
+                    <span class="mdi mdi-alert-circle-outline me-2" aria-hidden="true"></span>{{ errorMessage }}
                   </div>
 
                   <!-- Selection counter -->
@@ -124,7 +125,7 @@
                               v-if="getCommittedNames(item.id).length"
                               class="commitment-chip committed"
                             >
-                              <span class="mdi mdi-gift-outline me-1"></span>
+                              <span class="mdi mdi-gift-outline me-1" aria-hidden="true"></span>
                               {{ getCommittedNames(item.id).join(', ') }}
                             </span>
                             <span v-else class="commitment-chip uncommitted">
@@ -155,7 +156,7 @@
                             size="small"
                             @click="toggleItem(item.id)"
                           >
-                            <span class="mdi me-1" :class="isSelected(item.id) ? 'mdi-check' : 'mdi-plus'"></span>
+                            <span class="mdi me-1" :class="isSelected(item.id) ? 'mdi-check' : 'mdi-plus'" aria-hidden="true"></span>
                             {{ isSelected(item.id) ? 'Selected' : 'Select' }}
                           </v-btn>
                         </v-card-actions>
@@ -167,7 +168,7 @@
 
                   <!-- Privacy note -->
                   <div class="privacy-note">
-                    <span class="mdi mdi-shield-lock-outline"></span>
+                    <span class="mdi mdi-shield-lock-outline" aria-hidden="true"></span>
                     Your phone number is used only to help you update or remove your own selection later. It will not be shown publicly.
                   </div>
 
@@ -205,7 +206,7 @@
                           :disabled="!canLookupCommitment || isLookupLoading"
                           @click="lookupCommitment"
                         >
-                          <span class="mdi mdi-magnify me-1"></span> Find
+                          <span class="mdi mdi-magnify me-1" aria-hidden="true"></span> Find
                         </v-btn>
 
                         <v-btn
@@ -215,7 +216,7 @@
                           :disabled="!canSubmitCommitment || isSaveLoading"
                           @click="submitCommitment"
                         >
-                          <span class="mdi mdi-content-save-outline me-1"></span> Save
+                          <span class="mdi mdi-content-save-outline me-1" aria-hidden="true"></span> Save
                         </v-btn>
 
                         <v-btn
@@ -245,10 +246,10 @@
 
                 <!-- Alerts -->
                 <div v-if="successMessage" class="tc-alert success mb-4 pa-3">
-                  <span class="mdi mdi-check-circle-outline me-2"></span>{{ successMessage }}
+                  <span class="mdi mdi-check-circle-outline me-2" aria-hidden="true"></span>{{ successMessage }}
                 </div>
                 <div v-if="errorMessage" class="tc-alert error mb-4 pa-3">
-                  <span class="mdi mdi-alert-circle-outline me-2"></span>{{ errorMessage }}
+                  <span class="mdi mdi-alert-circle-outline me-2" aria-hidden="true"></span>{{ errorMessage }}
                 </div>
 
                 <!-- Login form -->
@@ -294,7 +295,7 @@
                 <!-- Logged-in admin panel -->
                 <template v-else>
                   <div class="admin-badge">
-                    <span class="mdi mdi-account-circle-outline"></span>
+                    <span class="mdi mdi-account-circle-outline" aria-hidden="true"></span>
                     Logged in as {{ adminLoggedInUser }}
                   </div>
 
@@ -341,7 +342,7 @@
                       :disabled="!canAddAdminItem || isAdminAddLoading"
                       @click="addAdminItem"
                     >
-                      <span class="mdi mdi-plus me-1"></span> Add item
+                      <span class="mdi mdi-plus me-1" aria-hidden="true"></span> Add item
                     </v-btn>
 
                     <v-btn
@@ -349,7 +350,7 @@
                       variant="outlined"
                       @click="adminLogout"
                     >
-                      <span class="mdi mdi-logout me-1"></span> Logout
+                      <span class="mdi mdi-logout me-1" aria-hidden="true"></span> Logout
                     </v-btn>
                   </div>
                 </template>
@@ -359,6 +360,7 @@
 
           </v-card>
         </v-container>
+<footer class="site-footer wrap"><div class="footer-inner"><p>© 2026 Akhil Selvakumar</p><a href="/labs/">Explore Labs <span aria-hidden="true"> ↗</span></a></div></footer>
       </v-main>
     </v-app>
   </div>

@@ -1,316 +1,60 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#faf9f6">
+  <title>Tic-Tac-Toe | Labs | Akhil Selvakumar</title>
+  <meta name="description" content="Play a local two-player game of Tic-Tac-Toe.">
+  
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../shared.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Fredoka+One&display=swap');
-
-  :root {
-    --bg: #ffffff;
-    --surface: #f0f0f0;
-    --cell-bg: #ffffff;
-    --cell-border: #1a1a1a;
-    --text: #1a1a1a;
-    --text-muted: #555555;
-    --x-color: #1a1a1a;
-    --o-color: #1a1a1a;
-    --win-glow: #1a1a1a;
-    --btn-bg: #1a1a1a;
-    --btn-text: #ffffff;
-    --toggle-bg: #1a1a1a;
-    --toggle-knob: #ffffff;
-    --score-bg: #1a1a1a;
-    --score-text: #ffffff;
-    --status-color: #1a1a1a;
-    --shadow: rgba(0,0,0,0.18);
-    --cell-hover: #e8e8e8;
-    --divider: #1a1a1a;
-    --win-cell: #e0e0e0;
-  }
-
-  .dark-mode {
-    --bg: #0e0e0e;
-    --surface: #1c1c1c;
-    --cell-bg: #1c1c1c;
-    --cell-border: #e8e8e8;
-    --text: #f0f0f0;
-    --text-muted: #aaaaaa;
-    --x-color: #f0f0f0;
-    --o-color: #f0f0f0;
-    --win-glow: #ffffff;
-    --btn-bg: #f0f0f0;
-    --btn-text: #0e0e0e;
-    --toggle-bg: #f0f0f0;
-    --toggle-knob: #0e0e0e;
-    --score-bg: #f0f0f0;
-    --score-text: #0e0e0e;
-    --status-color: #f0f0f0;
-    --shadow: rgba(255,255,255,0.08);
-    --cell-hover: #2a2a2a;
-    --divider: #e8e8e8;
-    --win-cell: #2e2e2e;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s, border-color 0.3s; }
-
-  .game-root {
-    background: var(--bg);
-    min-height: 520px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.5rem 1rem 2rem;
-    font-family: 'Fredoka One', 'Boogaloo', cursive;
-    position: relative;
-  }
-
-  .top-bar {
-    width: 100%;
-    max-width: 360px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .game-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 28px;
-    color: var(--text);
-    letter-spacing: 1px;
-  }
-
-  .toggle-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .toggle-label {
-    font-family: 'Fredoka One', cursive;
-    font-size: 14px;
-    color: var(--text-muted);
-    user-select: none;
-  }
-
-  .toggle {
-    width: 48px;
-    height: 26px;
-    background: var(--toggle-bg);
-    border-radius: 13px;
-    cursor: pointer;
-    position: relative;
-    border: 2px solid var(--cell-border);
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-
-  .toggle-knob {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--toggle-knob);
-    transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.3s;
-  }
-
-  .dark-mode .toggle-knob {
-    transform: translateX(22px);
-  }
-
-  .scores {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 1rem;
-    max-width: 360px;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .score-card {
-    background: var(--score-bg);
-    color: var(--score-text);
-    border-radius: 14px;
-    padding: 8px 18px;
-    text-align: center;
-    font-family: 'Fredoka One', cursive;
-    min-width: 80px;
-    border: 2.5px solid var(--cell-border);
-    transition: background 0.3s, color 0.3s;
-  }
-
-  .score-card.active-player {
-    box-shadow: 0 0 0 3px var(--win-glow);
-  }
-
-  .score-label {
-    font-size: 13px;
-    opacity: 0.85;
-  }
-
-  .score-val {
-    font-size: 26px;
-    line-height: 1.1;
-  }
-
-  .score-divider {
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-  }
-
-  .status-msg {
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-    color: var(--status-color);
-    margin-bottom: 1rem;
-    min-height: 28px;
-    text-align: center;
-    letter-spacing: 0.5px;
-    transition: color 0.3s;
-  }
-
-  .board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-    max-width: 312px;
-    width: 100%;
-    margin-bottom: 1.2rem;
-    border: 3px solid var(--cell-border);
-    border-radius: 18px;
-    overflow: hidden;
-    background: var(--cell-border);
-    box-shadow: 6px 6px 0px var(--shadow);
-  }
-
-  .cell {
-    background: var(--cell-bg);
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 56px;
-    font-family: 'Fredoka One', cursive;
-    border: 1.5px solid var(--cell-border);
-    transition: background 0.15s, transform 0.1s;
-    user-select: none;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cell:hover:not(.taken) {
-    background: var(--cell-hover);
-  }
-
-  .cell.taken {
-    cursor: default;
-  }
-
-  .cell.win-cell {
-    background: var(--win-cell);
-    animation: winPulse 0.4s ease;
-  }
-
-  @keyframes winPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-    100% { transform: scale(1); }
-  }
-
-  .cell-x {
-    color: var(--x-color);
-    display: inline-block;
-    animation: popIn 0.18s cubic-bezier(.4,0,.2,1);
-  }
-
-  .cell-o {
-    color: var(--o-color);
-    display: inline-block;
-    animation: popIn 0.18s cubic-bezier(.4,0,.2,1);
-  }
-
-  @keyframes popIn {
-    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-    80% { transform: scale(1.15) rotate(4deg); }
-    100% { transform: scale(1) rotate(0); opacity: 1; }
-  }
-
-  .actions {
-    display: flex;
-    gap: 10px;
-  }
-
-  .btn {
-    font-family: 'Fredoka One', cursive;
-    font-size: 17px;
-    padding: 10px 26px;
-    border-radius: 50px;
-    border: 2.5px solid var(--cell-border);
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: transform 0.12s, background 0.3s, color 0.3s;
-  }
-
-  .btn:hover { transform: scale(1.04) translateY(-2px); }
-  .btn:active { transform: scale(0.97); }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--text);
-  }
-</style>
-
-<div class="game-root" id="gameRoot">
-
-  <div class="top-bar">
-    <div class="game-title">Tic Tac Toe</div>
-    <div class="toggle-wrap">
-      <span class="toggle-label" id="modeLabel">Light</span>
-      <div class="toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">
-        <div class="toggle-knob"></div>
-      </div>
+  .game-layout { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .game-layout .page-hero { margin-bottom:0; }
+  .game-root { width:100%; max-width:410px; justify-self:end; }
+  .scores { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:25px; }
+  .score-card { padding:15px 18px; background:var(--surface); border:1px solid var(--line); border-radius:6px; }
+  .score-card.active-player { border-color:var(--accent); }
+  .score-label { font-size:12px; color:var(--muted); }
+  .score-val { font-size:28px; line-height:1.3; color:var(--ink); }
+  .active-player .score-label { color:var(--accent); }
+  .status-msg { min-height:30px; margin:0 0 15px; font-size:15px; }
+  .board { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; border:1px solid var(--line); background:var(--line); border-radius:6px; overflow:hidden; }
+  .cell { display:grid; place-items:center; aspect-ratio:1; width:100%; background:var(--bg); border:0; border-radius:0; padding:0; color:var(--ink); font-size:clamp(38px,7vw,62px); font-weight:450; }
+  .cell:hover:not(.taken) { background:var(--surface); }
+  .cell:focus-visible { outline-offset:-5px; }
+  .cell.taken { cursor:default; }
+  .cell-x { color:var(--accent); }
+  .cell-o { color:var(--ink); }
+  .cell.win-cell { background:var(--accent-soft); }
+  .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:25px; }
+  .btn { min-height:46px; border:1px solid var(--accent); border-radius:4px; padding:10px 18px; background:var(--accent); color:var(--bg); font-size:14px; }
+  .btn-ghost { border-color:var(--line); color:var(--ink); background:transparent; }
+  .btn:hover { filter:brightness(.95); }
+  .game-note { color:var(--muted); margin-top:18px; font-size:12px; }
+  @media(max-width:850px) { .game-layout { grid-template-columns:1fr; gap:35px; } .game-root { justify-self:start; } }
+  @media(max-width:440px) { .actions { gap:10px; } .btn { padding-inline:15px; } }
+</style></head><body>
+<a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="logo" href="/" aria-label="Akhil Selvakumar, home">akhil<span>.</span></a>
+    <div class="header-actions"><nav aria-label="Primary navigation"><a href="/labs/"><span aria-hidden="true">←</span> Labs</a></nav>
+      <div class="theme-control" hidden><button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch colour theme"></button></div>
     </div>
-  </div>
-
-  <div class="scores">
-    <div class="score-card" id="scoreX">
-      <div class="score-label">Player X</div>
-      <div class="score-val" id="xScore">0</div>
-    </div>
-    <div class="score-divider">—</div>
-    <div class="score-card" id="scoreO">
-      <div class="score-label">Player O</div>
-      <div class="score-val" id="oScore">0</div>
-    </div>
-  </div>
-
-  <div class="status-msg" id="statusMsg">Player X's turn</div>
-
-  <div class="board" id="board">
-    <div class="cell" data-i="0" onclick="cellClick(0)"></div>
-    <div class="cell" data-i="1" onclick="cellClick(1)"></div>
-    <div class="cell" data-i="2" onclick="cellClick(2)"></div>
-    <div class="cell" data-i="3" onclick="cellClick(3)"></div>
-    <div class="cell" data-i="4" onclick="cellClick(4)"></div>
-    <div class="cell" data-i="5" onclick="cellClick(5)"></div>
-    <div class="cell" data-i="6" onclick="cellClick(6)"></div>
-    <div class="cell" data-i="7" onclick="cellClick(7)"></div>
-    <div class="cell" data-i="8" onclick="cellClick(8)"></div>
-  </div>
-
-  <div class="actions">
-    <button class="btn" onclick="resetGame()">New Game</button>
-    <button class="btn btn-ghost" onclick="resetScores()">Reset Scores</button>
-  </div>
-</div>
-
-<script>
+  </div></header>
+  <main id="main" class="wrap labs-main game-layout">
+    <header class="page-hero"><p class="eyebrow">Lab 02 · Browser game</p><h1>Tic-Tac-Toe.<br><em>Your move.</em></h1><p class="intro">A quick two-player break. Take turns on the same screen, get three in a row, and keep the score going.</p></header>
+    <section class="game-root" id="gameRoot" aria-label="Tic-Tac-Toe game">
+      <div class="scores"><div class="score-card" id="scoreX"><div class="score-label">Player X</div><div class="score-val" id="xScore">0</div></div><div class="score-card" id="scoreO"><div class="score-label">Player O</div><div class="score-val" id="oScore">0</div></div></div>
+      <p class="status-msg" id="statusMsg" role="status" aria-live="polite">Player X's turn</p>
+      <div class="board" id="board" role="group" aria-label="Game board"><button type="button" class="cell" data-i="0" onclick="cellClick(0)" aria-label="Row 1, column 1: empty"></button><button type="button" class="cell" data-i="1" onclick="cellClick(1)" aria-label="Row 1, column 2: empty"></button><button type="button" class="cell" data-i="2" onclick="cellClick(2)" aria-label="Row 1, column 3: empty"></button><button type="button" class="cell" data-i="3" onclick="cellClick(3)" aria-label="Row 2, column 1: empty"></button><button type="button" class="cell" data-i="4" onclick="cellClick(4)" aria-label="Row 2, column 2: empty"></button><button type="button" class="cell" data-i="5" onclick="cellClick(5)" aria-label="Row 2, column 3: empty"></button><button type="button" class="cell" data-i="6" onclick="cellClick(6)" aria-label="Row 3, column 1: empty"></button><button type="button" class="cell" data-i="7" onclick="cellClick(7)" aria-label="Row 3, column 2: empty"></button><button type="button" class="cell" data-i="8" onclick="cellClick(8)" aria-label="Row 3, column 3: empty"></button></div>
+      <div class="actions"><button type="button" class="btn" onclick="resetGame()">New game</button><button type="button" class="btn btn-ghost" onclick="resetScores()">Reset scores</button></div>
+      <p class="game-note">X goes first. New game keeps your scores; reset scores starts fresh.</p>
+    </section>
+  </main><footer class="site-footer wrap"><div class="footer-inner"><p>© 2026 Akhil Selvakumar</p><a href="/labs/">Explore Labs <span aria-hidden="true"> ↗</span></a></div></footer><script>
   const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   let board = Array(9).fill(null);
   let current = 'X';
@@ -344,6 +88,8 @@
       if (board[i]) {
         cell.innerHTML = `<span class="cell-${board[i].toLowerCase()}">${board[i]}</span>`;
         cell.classList.add('taken');
+        cell.setAttribute('aria-label', `Row ${Math.floor(i / 3) + 1}, column ${i % 3 + 1}: ${board[i]}`);
+        cell.setAttribute('aria-disabled', 'true');
       }
     });
   }
@@ -379,9 +125,11 @@
     board = Array(9).fill(null);
     current = 'X';
     gameOver = false;
-    document.querySelectorAll('.cell').forEach(cell => {
+    document.querySelectorAll('.cell').forEach((cell, i) => {
       cell.innerHTML = '';
       cell.classList.remove('taken', 'win-cell');
+      cell.setAttribute('aria-label', `Row ${Math.floor(i / 3) + 1}, column ${i % 3 + 1}: empty`);
+      cell.removeAttribute('aria-disabled');
     });
     document.getElementById('statusMsg').textContent = "Player X's turn";
     document.getElementById('scoreX').classList.add('active-player');
@@ -394,11 +142,6 @@
     resetGame();
   }
 
-  function toggleTheme() {
-    const root = document.getElementById('gameRoot');
-    const isDark = root.classList.toggle('dark-mode');
-    document.getElementById('modeLabel').textContent = isDark ? 'Dark' : 'Light';
-  }
 
   updateActivePlayer();
-</script>
+</script></body></html>

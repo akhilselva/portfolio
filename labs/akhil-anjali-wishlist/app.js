@@ -3,7 +3,11 @@ const { createVuetify } = Vuetify;
 
 const vuetify = createVuetify({
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: window.PortfolioTheme.isDark ? 'dark' : 'light',
+    themes: {
+      light: { dark: false, colors: { primary: '#086ebd', background: '#faf9f6', surface: '#faf9f6' } },
+      dark: { dark: true, colors: { primary: '#54adf3', background: '#181818', surface: '#242424' } },
+    },
   }
 });
 
@@ -66,7 +70,7 @@ createApp({
       isLookupLoading: false,
       isSaveLoading: false,
       isClearLoading: false,
-      isDarkMode: false,
+      isDarkMode: window.PortfolioTheme.isDark,
       //admin data
       adminUser: "akhil",
       adminPassword: "",
@@ -137,6 +141,7 @@ createApp({
 
   async mounted() {
     window.addEventListener("hashchange", this.syncRoute);
+    window.addEventListener("portfolio:theme", this.syncPortfolioTheme);
 
     if (!window.location.hash) {
       window.location.hash = "#/wishlist";
@@ -150,9 +155,13 @@ createApp({
 
   beforeUnmount() {
     window.removeEventListener("hashchange", this.syncRoute);
+    window.removeEventListener("portfolio:theme", this.syncPortfolioTheme);
   },
 
   methods: {
+    syncPortfolioTheme(event) {
+      this.isDarkMode = event.detail.dark;
+    },
     async loadWishlistData() {
       this.isLoading = true;
       this.isUsingFallbackData = false;
@@ -344,7 +353,7 @@ createApp({
     },
 
     toggleTheme() {
-      this.isDarkMode = !this.isDarkMode;
+      window.PortfolioTheme.toggle();
     },
 
     //admin methods

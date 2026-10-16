@@ -8,26 +8,25 @@
   <title>Route Planner · Labs · Akhil Selvakumar</title>
   <meta name="description"
     content="A minimalist driving route planner with realistic travel times, fuel estimations, and arrival weather forecasts.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
-    rel="stylesheet">
+  <meta name="color-scheme" content="light dark">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../shared.css">
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
 
 <body>
-  <div class="horizon"></div>
+<a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="logo" href="/" aria-label="Akhil Selvakumar, home">akhil<span>.</span></a>
+    <div class="header-actions"><nav aria-label="Primary navigation"><a href="/labs/"><span aria-hidden="true">←</span> Labs</a></nav>
+      <div class="theme-control" hidden><button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch colour theme"></button></div>
+    </div>
+  </div></header>
 
-  <nav aria-label="Primary navigation">
-    <a class="logo" href="/">Akhil Selvakumar</a>
-    <a class="back" href="/labs/" aria-label="Return to Labs"><span aria-hidden="true">←</span> Labs</a>
-  </nav>
-
-  <main>
-    <header class="hero">
-      <p class="eyebrow">Lab 03 · Monochromatic Tool</p>
+  <main id="main" class="wrap labs-main">
+    <header class="page-hero">
+      <p class="eyebrow">Lab 03 · Travel tool</p>
       <h1>Driving <em>Route Planner</em></h1>
       <p class="intro">Calculate realistic road travel durations, arrival weather forecasts, fuel consumption, and trip
         costs across your multi-city itinerary.</p>
@@ -104,18 +103,6 @@
               <span aria-hidden="true">+</span> Add Stop
             </button>
           </fieldset>
-
-          <!-- Prompt container when OSRM routing is impossible -->
-          <div id="manual-distance-prompt" class="manual-distance-card" style="display: none;">
-            <p class="manual-distance-text">⚠️ Direct road route between these waypoints could not be auto-calculated
-              (NoRoute). Enter your approximate total distance below to complete calculations:</p>
-            <div class="manual-distance-input-row">
-              <div class="input-group">
-                <label for="manualDistance">Approx. Total Distance (km)</label>
-                <input type="number" id="manualDistance" min="1" step="1" placeholder="e.g. 500">
-              </div>
-            </div>
-          </div>
 
           <!-- Shown only when OSRM cannot route between cities -->
           <div id="manual-distance-prompt" class="manual-distance-card" style="display: none;" role="alert">
@@ -204,7 +191,7 @@
     </div>
   </main>
 
-  <footer>© 2026 Akhil Selvakumar · Built with curiosity</footer>
+<footer class="site-footer wrap"><div class="footer-inner"><p>© 2026 Akhil Selvakumar</p><a href="/labs/">Explore Labs <span aria-hidden="true"> ↗</span></a></div></footer>
 </body>
 
 </html>
